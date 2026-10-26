@@ -1,20 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowUpRight, Menu, X, Sun, Moon } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sun, Moon, ArrowUpRight, Menu, X, Volume2, VolumeX } from 'lucide-react';
 
-export default function Navbar({ isDark, onToggleTheme }) {
-  const [scrolled, setScrolled] = useState(false);
+export default function Navbar({
+  isDark,
+  onToggleTheme,
+  onOpenBrief,
+  soundEnabled,
+  onToggleSound,
+}) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const [activeTab, setActiveTab] = useState('Home');
 
   const navLinks = [
-    { name: 'Home', href: '#home', active: true },
+    { name: 'Home', href: '#home' },
     { name: 'Services', href: '#services' },
     { name: 'AI Solutions', href: '#ai-solutions' },
     { name: 'About', href: '#about' },
@@ -22,134 +20,124 @@ export default function Navbar({ isDark, onToggleTheme }) {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex justify-center px-4 pt-4 sm:pt-6 transition-all duration-300">
-      <nav
-        className={`w-full max-w-6xl rounded-full px-6 py-3.5 flex items-center justify-between transition-all duration-300 ${
-          isDark
-            ? scrolled
-              ? 'bg-zinc-950/85 backdrop-blur-xl border border-zinc-800 shadow-[0_8px_32px_rgba(0,0,0,0.6)]'
-              : 'bg-zinc-900/60 backdrop-blur-lg border border-zinc-800/60 shadow-[0_4px_24px_rgba(0,0,0,0.3)]'
-            : scrolled
-              ? 'bg-white/85 backdrop-blur-xl border border-zinc-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)]'
-              : 'bg-white/95 backdrop-blur-md border border-zinc-200/60 shadow-[0_4px_20px_rgb(0,0,0,0.03)]'
-        }`}
-      >
-        {/* Left: Navigation Links */}
-        <div className="hidden md:flex items-center space-x-7 text-sm font-medium">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              className={`relative transition-colors duration-200 ${
-                link.active
-                  ? isDark ? 'text-white font-semibold' : 'text-zinc-950 font-semibold'
-                  : isDark ? 'text-zinc-400 hover:text-white' : 'text-zinc-600 hover:text-zinc-950'
-              }`}
-            >
-              {link.name}
-              {link.active && (
-                <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" />
-              )}
-            </a>
-          ))}
-        </div>
-        {/* Center: Official Studio HD Logo */}
-        <div className="flex items-center justify-center">
-          <a href="#home" className="flex items-center group">
-          <img
-              src="/brand/logo.png"
-             alt="Studio by Anas Shariff"
-             style={{
-             mixBlendMode: isDark ? 'screen' : 'normal',
-            filter: isDark ? 'invert(1) brightness(1.2)' : 'none',
-       }}
-            className="h-9 sm:h-11 w-auto object-contain select-none transition-transform duration-300 group-hover:scale-105"
-       />
-       </a>
-       </div>
-        {/* Right: Theme Toggle + CTA */}
-        <div className="hidden md:flex items-center space-x-3">
-          {/* Theme Toggle Button */}
+    <header className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md border-b transition-colors duration-300 border-purple-500/15 bg-[#09090b]/80 text-zinc-200">
+      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        
+        {/* Nav Links */}
+        <nav className="hidden md:flex items-center space-x-8 text-xs font-medium">
+          {navLinks.map((link) => {
+            const isActive = activeTab === link.name;
+            return (
+              <a
+                key={link.name}
+                href={link.href}
+                onClick={() => setActiveTab(link.name)}
+                className={`relative py-2 transition-all duration-200 ${
+                  isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-purple-300'
+                }`}
+              >
+                {link.name}
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-purple-500 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
+                )}
+              </a>
+            );
+          })}
+        </nav>
+
+        {/* Center Logo */}
+        <a href="#home" className="flex flex-col items-center select-none group text-center">
+          <span className="text-xl font-black tracking-widest uppercase leading-none text-white drop-shadow-[0_0_12px_rgba(168,85,247,0.35)]">
+            STUDIO
+          </span>
+          <span className="text-[9px] font-mono tracking-[0.25em] text-purple-400 font-bold uppercase mt-1">
+            BY ANAS SHARIFF
+          </span>
+        </a>
+
+        {/* Right Controls */}
+        <div className="hidden md:flex items-center space-x-4">
+          {/* Sound Toggle */}
           <button
-            onClick={onToggleTheme}
-            aria-label="Toggle Theme"
-            className={`p-2 rounded-full border transition-all duration-200 ${
-              isDark
-                ? 'bg-zinc-800/80 border-zinc-700 text-amber-400 hover:bg-zinc-700'
-                : 'bg-zinc-100 border-zinc-200 text-zinc-700 hover:bg-zinc-200'
-            }`}
+            onClick={onToggleSound}
+            data-cursor="SOUND"
+            className="w-9 h-9 rounded-full flex items-center justify-center border border-purple-500/20 bg-purple-950/30 text-purple-300 hover:border-purple-500/50 hover:bg-purple-900/40 transition-all cursor-pointer"
+            aria-label="Toggle sound feedback"
           >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-zinc-500" />}
           </button>
 
-          {/* CTA Button */}
-          <a
-            href="#contact"
-            className={`group inline-flex items-center space-x-2 px-5 py-2.5 rounded-full text-xs font-semibold transition-all duration-200 shadow-sm ${
-              isDark
-                ? 'text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/80 hover:border-zinc-500'
-                : 'text-white bg-zinc-950 hover:bg-zinc-800'
-            }`}
-          >
-            <span>Start Project</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-zinc-400 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-white" />
-          </a>
-        </div>
-
-        {/* Mobile Actions: Toggle + Hamburger */}
-        <div className="flex items-center space-x-2 md:hidden">
+          {/* Theme Toggle */}
           <button
             onClick={onToggleTheme}
-            aria-label="Toggle Theme"
-            className={`p-1.5 rounded-full border ${
-              isDark ? 'bg-zinc-800 border-zinc-700 text-amber-400' : 'bg-zinc-100 border-zinc-200 text-zinc-700'
-            }`}
+            data-cursor="THEME"
+            className="w-9 h-9 rounded-full flex items-center justify-center border border-purple-500/20 bg-purple-950/30 text-amber-400 hover:border-purple-500/50 hover:bg-purple-900/40 transition-all cursor-pointer"
+            aria-label="Toggle theme"
           >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-purple-300" />}
+          </button>
+
+          {/* Start Project CTA */}
+          <button
+            type="button"
+            onClick={onOpenBrief}
+            data-cursor="START"
+            className="inline-flex items-center space-x-1.5 px-5 py-2.5 rounded-full text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 shadow-[0_0_20px_rgba(147,51,234,0.45)] hover:shadow-[0_0_25px_rgba(147,51,234,0.65)] transition-all cursor-pointer"
+          >
+            <span>Start Project</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Mobile Hamburger */}
+        <div className="flex md:hidden items-center space-x-2">
+          <button
+            onClick={onToggleSound}
+            className="w-8 h-8 rounded-full border border-purple-500/30 bg-purple-950/40 flex items-center justify-center text-xs text-purple-300"
+          >
+            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-zinc-500" />}
+          </button>
+          <button
+            onClick={onToggleTheme}
+            className="w-8 h-8 rounded-full border border-purple-500/30 bg-purple-950/40 flex items-center justify-center text-xs"
+          >
+            {isDark ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-purple-300" />}
           </button>
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`p-1.5 rounded-lg ${
-              isDark ? 'text-zinc-300 hover:bg-zinc-800' : 'text-zinc-700 hover:bg-zinc-100'
-            }`}
-            aria-label="Toggle menu"
+            className="p-1.5 text-zinc-300 hover:text-white"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
-      </nav>
+      </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div
-          className={`absolute top-20 left-4 right-4 rounded-2xl p-5 shadow-2xl flex flex-col space-y-4 md:hidden border transition-all duration-200 ${
-            isDark
-              ? 'bg-zinc-950/95 backdrop-blur-xl border-zinc-800'
-              : 'bg-white/95 backdrop-blur-xl border-zinc-200'
-          }`}
-        >
+        <div className="md:hidden border-t border-purple-500/20 bg-[#09090b]/95 backdrop-blur-2xl px-6 py-6 space-y-4 text-sm font-semibold">
           {navLinks.map((link) => (
             <a
               key={link.name}
               href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`text-sm font-medium ${
-                isDark ? 'text-zinc-300 hover:text-white' : 'text-zinc-700 hover:text-zinc-950'
-              }`}
+              onClick={() => {
+                setActiveTab(link.name);
+                setMobileMenuOpen(false);
+              }}
+              className="block py-1 text-zinc-300 hover:text-purple-400 transition-colors"
             >
               {link.name}
             </a>
           ))}
-          <a
-            href="#contact"
-            onClick={() => setMobileMenuOpen(false)}
-            className={`flex items-center justify-center space-x-1.5 w-full py-2.5 text-xs font-semibold rounded-full ${
-              isDark ? 'bg-white text-zinc-950' : 'bg-zinc-950 text-white'
-            }`}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenBrief();
+            }}
+            className="w-full text-center py-3 rounded-full text-xs font-bold text-white bg-purple-600 shadow-md shadow-purple-600/30 cursor-pointer"
           >
-            <span>Start Project</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
-          </a>
+            Start Project ↗
+          </button>
         </div>
       )}
     </header>
