@@ -11,7 +11,8 @@ import {
   Mail,
   User,
   Layers,
-  DollarSign
+  DollarSign,
+  Loader2
 } from 'lucide-react';
 
 export default function ProjectBriefModal({ isOpen, onClose, isDark }) {
@@ -28,6 +29,8 @@ export default function ProjectBriefModal({ isOpen, onClose, isDark }) {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   if (!isOpen) return null;
 
@@ -61,25 +64,57 @@ export default function ProjectBriefModal({ isOpen, onClose, isDark }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setIsSubmitting(true);
+    setErrorMessage('');
 
-    const subject = encodeURIComponent(`New Project Brief: ${formData.name}`);
-    const body = encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nServices: ${formData.projectTypes.join(', ')}\nBudget: ${formData.budget}\nTimeline: ${formData.timeline}\nBrief: ${formData.description}\nLink: ${formData.referenceLink}`
-    );
-    window.location.href = `mailto:anashamdan3874@gmail.com?subject=${subject}&body=${body}`;
+    try {
+      const payload = {
+        access_key: 'a1313516-ced4-4a1b-ac8f-65609b0a0857',
+        subject: `New Project Brief from ${formData.name}`,
+        from_name: formData.name,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone || 'Not Provided',
+        services_required: formData.projectTypes.join(', '),
+        budget_tier: formData.budget,
+        timeline: formData.timeline,
+        reference_link: formData.referenceLink || 'None provided',
+        project_scope: formData.description
+      };
+
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setSubmitted(true);
+      } else {
+        setErrorMessage(data.message || 'Submission failed. Please try again.');
+      }
+    } catch (err) {
+      setErrorMessage('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div
       data-lenis-prevent
-      className="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xl animate-fade-in"
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-xl animate-fade-in overflow-y-auto"
     >
       <div
         data-lenis-prevent
-        className={`relative w-full max-w-4xl rounded-[28px] p-6 sm:p-8 border shadow-[0_25px_80px_rgba(0,0,0,0.95)] overflow-hidden transition-all ${
+        className={`relative w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-[28px] p-6 sm:p-8 border shadow-[0_25px_80px_rgba(0,0,0,0.95)] transition-all custom-scrollbar ${
           isDark
             ? 'bg-[#0b0c10]/95 border-purple-500/25 text-zinc-100 shadow-purple-950/30'
             : 'bg-white/95 border-zinc-200 text-zinc-900 shadow-zinc-400/20'
@@ -160,7 +195,7 @@ export default function ProjectBriefModal({ isOpen, onClose, isDark }) {
                       }`}
                     />
 
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       <input
                         type="email"
                         required
@@ -216,7 +251,7 @@ export default function ProjectBriefModal({ isOpen, onClose, isDark }) {
                   </div>
                 </div>
 
-                {/* Reference Link / File Upload in Left Column */}
+                {/* Reference Link */}
                 <div className="space-y-1.5">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400 font-bold flex items-center space-x-1.5">
                     <LinkIcon className="w-3 h-3 text-purple-400" />
@@ -313,6 +348,10 @@ export default function ProjectBriefModal({ isOpen, onClose, isDark }) {
                   />
                 </div>
 
+                {errorMessage && (
+                  <p className="text-[11px] text-rose-400 font-mono">{errorMessage}</p>
+                )}
+
                 {/* Bottom Submit Action */}
                 <div className="pt-2 flex items-center justify-between gap-3">
                   <span className="text-[11px] text-zinc-500 font-mono">
@@ -320,10 +359,20 @@ export default function ProjectBriefModal({ isOpen, onClose, isDark }) {
                   </span>
                   <button
                     type="submit"
-                    className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-full text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 shadow-[0_0_20px_rgba(147,51,234,0.45)] hover:shadow-[0_0_25px_rgba(147,51,234,0.65)] transition-all cursor-pointer"
+                    disabled={isSubmitting}
+                    className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-full text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 shadow-[0_0_20px_rgba(147,51,234,0.45)] hover:shadow-[0_0_25px_rgba(147,51,234,0.65)] transition-all cursor-pointer disabled:opacity-50"
                   >
-                    <span>Submit Brief</span>
-                    <Send className="w-3.5 h-3.5" />
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Transmitting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Submit Brief</span>
+                        <Send className="w-3.5 h-3.5" />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
