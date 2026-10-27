@@ -61,15 +61,41 @@ export default function ProjectBriefModal({ isOpen, onClose, isDark }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
 
-    const subject = encodeURIComponent(`New Project Brief: ${formData.name}`);
-    const body = encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nServices: ${formData.projectTypes.join(', ')}\nBudget: ${formData.budget}\nTimeline: ${formData.timeline}\nBrief: ${formData.description}\nLink: ${formData.referenceLink}`
-    );
-    window.location.href = `mailto:anashamdan3874@gmail.com?subject=${subject}&body=${body}`;
+    const formPayload = {
+      access_key: "a1313516-ced4-4a1b-ac8f-65609b0a0857",
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      service_scope: formData.projectTypes.join(', '),
+      budget: formData.budget,
+      timeline: formData.timeline,
+      message: formData.description,
+      reference_link: formData.referenceLink,
+    };
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(formPayload),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        alert("Submission failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("Something went wrong!");
+    }
   };
 
   return (
