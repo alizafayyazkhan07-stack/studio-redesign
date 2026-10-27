@@ -1,142 +1,79 @@
-import React, { useState } from 'react';
-import { Sun, Moon, ArrowUpRight, Menu, X, Volume2, VolumeX } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 
-export default function Navbar({
-  isDark,
-  onToggleTheme,
-  onOpenBrief,
-  soundEnabled,
-  onToggleSound,
-}) {
+export default function Navbar({ onOpenBrief }) {
+  const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('Home');
 
-  const navLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'Services', href: '#services' },
-    { name: 'AI Solutions', href: '#ai-solutions' },
-    { name: 'About', href: '#about' },
-    { name: 'Contact', href: '#contact' },
-  ];
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 backdrop-blur-md border-b transition-colors duration-300 border-purple-500/15 bg-[#09090b]/80 text-zinc-200">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+      scrolled 
+        ? 'bg-white/85 backdrop-blur-xl border-b border-zinc-200/80 shadow-sm py-4' 
+        : 'bg-transparent py-6'
+    }`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
         
-        {/* Nav Links */}
-        <nav className="hidden md:flex items-center space-x-8 text-xs font-medium">
-          {navLinks.map((link) => {
-            const isActive = activeTab === link.name;
-            return (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={() => setActiveTab(link.name)}
-                className={`relative py-2 transition-all duration-200 ${
-                  isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-purple-300'
-                }`}
-              >
-                {link.name}
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-purple-500 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.8)]" />
-                )}
-              </a>
-            );
-          })}
-        </nav>
-
-        {/* Center Logo */}
-        <a href="#home" className="flex flex-col items-center select-none group text-center">
-          <span className="text-xl font-black tracking-widest uppercase leading-none text-white drop-shadow-[0_0_12px_rgba(168,85,247,0.35)]">
+        {/* Logo */}
+        <a href="#home" className="flex items-center space-x-2 group">
+          <span className="text-lg font-bold tracking-tighter uppercase text-zinc-900">
             STUDIO
           </span>
-          <span className="text-[9px] font-mono tracking-[0.25em] text-purple-400 font-bold uppercase mt-1">
+          <span className="text-[10px] font-mono tracking-widest text-zinc-500 font-semibold border-l border-zinc-300 pl-2">
             BY ANAS SHARIFF
           </span>
         </a>
 
-        {/* Right Controls */}
-        <div className="hidden md:flex items-center space-x-4">
-          {/* Sound Toggle */}
-          <button
-            onClick={onToggleSound}
-            data-cursor="SOUND"
-            className="w-9 h-9 rounded-full flex items-center justify-center border border-purple-500/20 bg-purple-950/30 text-purple-300 hover:border-purple-500/50 hover:bg-purple-900/40 transition-all cursor-pointer"
-            aria-label="Toggle sound feedback"
-          >
-            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-zinc-500" />}
-          </button>
+        {/* Desktop Navigation Links */}
+        <nav className="hidden md:flex items-center space-x-8 text-xs font-medium tracking-wide text-zinc-600">
+          <a href="#home" className="hover:text-zinc-900 transition-colors">Home</a>
+          <a href="#services" className="hover:text-zinc-900 transition-colors">Services</a>
+          <a href="#ai-solutions" className="hover:text-zinc-900 transition-colors">AI Solutions</a>
+          <a href="#about" className="hover:text-zinc-900 transition-colors">About</a>
+          <a href="#contact" className="hover:text-zinc-900 transition-colors">Contact</a>
+        </nav>
 
-          {/* Theme Toggle */}
-          <button
-            onClick={onToggleTheme}
-            data-cursor="THEME"
-            className="w-9 h-9 rounded-full flex items-center justify-center border border-purple-500/20 bg-purple-950/30 text-amber-400 hover:border-purple-500/50 hover:bg-purple-900/40 transition-all cursor-pointer"
-            aria-label="Toggle theme"
-          >
-            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-purple-300" />}
-          </button>
-
-          {/* Start Project CTA */}
+        {/* Right Actions (Arrow removed) */}
+        <div className="flex items-center space-x-4">
           <button
             type="button"
             onClick={onOpenBrief}
-            data-cursor="START"
-            className="inline-flex items-center space-x-1.5 px-5 py-2.5 rounded-full text-xs font-bold text-white bg-purple-600 hover:bg-purple-500 shadow-[0_0_20px_rgba(147,51,234,0.45)] hover:shadow-[0_0_25px_rgba(147,51,234,0.65)] transition-all cursor-pointer"
+            className="hidden sm:inline-flex items-center justify-center px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide bg-zinc-900 text-white hover:bg-zinc-800 transition-all shadow-md cursor-pointer"
           >
             <span>Start Project</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
           </button>
-        </div>
 
-        {/* Mobile Hamburger */}
-        <div className="flex md:hidden items-center space-x-2">
+          {/* Mobile Menu Button */}
           <button
-            onClick={onToggleSound}
-            className="w-8 h-8 rounded-full border border-purple-500/30 bg-purple-950/40 flex items-center justify-center text-xs text-purple-300"
-          >
-            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5 text-zinc-500" />}
-          </button>
-          <button
-            onClick={onToggleTheme}
-            className="w-8 h-8 rounded-full border border-purple-500/30 bg-purple-950/40 flex items-center justify-center text-xs"
-          >
-            {isDark ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-purple-300" />}
-          </button>
-          <button
+            type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1.5 text-zinc-300 hover:text-white"
+            className="md:hidden p-2 rounded-xl text-zinc-700 hover:bg-zinc-100 transition-colors cursor-pointer"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-purple-500/20 bg-[#09090b]/95 backdrop-blur-2xl px-6 py-6 space-y-4 text-sm font-semibold">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              onClick={() => {
-                setActiveTab(link.name);
-                setMobileMenuOpen(false);
-              }}
-              className="block py-1 text-zinc-300 hover:text-purple-400 transition-colors"
-            >
-              {link.name}
-            </a>
-          ))}
+        <div className="absolute top-full inset-x-0 bg-white/95 backdrop-blur-2xl border-b border-zinc-200 p-6 shadow-xl md:hidden flex flex-col space-y-4">
+          <a href="#home" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-zinc-800">Home</a>
+          <a href="#services" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-zinc-800">Services</a>
+          <a href="#ai-solutions" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-zinc-800">About</a>
+          <a href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-zinc-800">Contact</a>
           <button
             type="button"
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenBrief();
-            }}
-            className="w-full text-center py-3 rounded-full text-xs font-bold text-white bg-purple-600 shadow-md shadow-purple-600/30 cursor-pointer"
+            onClick={() => { setMobileMenuOpen(false); onOpenBrief(); }}
+            className="w-full py-3 rounded-xl bg-zinc-900 text-white text-xs font-semibold text-center cursor-pointer"
           >
-            Start Project ↗
+            Start Project
           </button>
         </div>
       )}

@@ -5,27 +5,16 @@ import Lenis from '@studio-freight/lenis';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Services from './components/Services';
-import IntelligenceShowcase from './components/IntelligenceShowcase';
 import AISolutions from './components/AISolutions';
+import IntelligenceShowcase from './components/IntelligenceShowcase';
+import PerformanceComparison from './components/PerformanceComparison';
 import About from './components/About';
 import ContactBanner from './components/ContactBanner';
 import Footer from './components/Footer';
 import ProjectBriefModal from './components/ProjectBriefModal';
 
-// Extensions
-import CustomCursor from './components/CustomCursor';
-import PerformanceComparison from './components/PerformanceComparison';
-import { useSoundEffects } from './utils/useSoundEffects';
-
 export default function App() {
-  const [isDark, setIsDark] = useState(() => {
-    return localStorage.getItem('studio_theme') !== 'light';
-  });
-
-  const [soundEnabled, setSoundEnabled] = useState(false);
   const [isBriefOpen, setIsBriefOpen] = useState(false);
-
-  const { playTactilePop, playGlassChime, playSuccessBell } = useSoundEffects(soundEnabled);
 
   // Smooth Lenis inertial scrolling
   useEffect(() => {
@@ -51,60 +40,33 @@ export default function App() {
     };
   }, []);
 
-  const handleToggleTheme = () => {
-    playTactilePop();
-    setIsDark((prev) => {
-      const next = !prev;
-      localStorage.setItem('studio_theme', next ? 'dark' : 'light');
-      return next;
-    });
-  };
-
   const handleOpenBrief = () => {
-    playGlassChime();
     setIsBriefOpen(true);
   };
 
   return (
-    <div
-      className={`min-h-screen transition-colors duration-500 font-sans selection:bg-zinc-500/30 selection:text-zinc-200 relative overflow-x-hidden ${
-        isDark ? 'bg-[#09090b] text-zinc-100' : 'bg-[#f5f5f7] text-zinc-900'
-      }`}
-    >
-      <CustomCursor isDark={isDark} />
-      {/* ScrollIndicator and StudioEdge successfully removed */}
+    <div className="min-h-screen bg-[#f5f5f7] text-zinc-900 font-sans selection:bg-zinc-200 selection:text-zinc-900 relative overflow-x-hidden">
+      
+      {/* Navbar without arrow icon & custom cursor removed */}
+      <Navbar onOpenBrief={handleOpenBrief} />
 
-      <Navbar
-        isDark={isDark}
-        onToggleTheme={handleToggleTheme}
-        onOpenBrief={handleOpenBrief}
-        soundEnabled={soundEnabled}
-        onToggleSound={() => {
-          playTactilePop();
-          setSoundEnabled((prev) => !prev);
-        }}
-      />
-
-      {/* Main Page Flow */}
+      {/* Main Page Flow (Pure White / Light Grey Apple Aesthetic with Carousel) */}
       <main>
-        <Hero isDark={isDark} onOpenBrief={handleOpenBrief} />
-        
-        <AISolutions isDark={isDark} />
-        <Services isDark={isDark} onOpenBrief={handleOpenBrief} />
-        <IntelligenceShowcase isDark={isDark} />
-
-        <PerformanceComparison isDark={isDark} />
-        <About isDark={isDark} />
-        <ContactBanner isDark={isDark} onOpenBrief={handleOpenBrief} />
+        <Hero onOpenBrief={handleOpenBrief} />
+        <AISolutions onOpenBrief={handleOpenBrief} />
+        <Services onOpenBrief={handleOpenBrief} />
+        <IntelligenceShowcase />
+        <PerformanceComparison />
+        <About />
+        <ContactBanner onOpenBrief={handleOpenBrief} />
       </main>
 
-      <Footer isDark={isDark} onOpenBrief={handleOpenBrief} />
+      <Footer onOpenBrief={handleOpenBrief} />
 
       <ProjectBriefModal
         isOpen={isBriefOpen}
         onClose={() => setIsBriefOpen(false)}
-        isDark={isDark}
-        onSuccessSound={playSuccessBell}
+        isDark={false}
       />
     </div>
   );
