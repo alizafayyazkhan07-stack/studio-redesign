@@ -14,10 +14,7 @@ import ProjectBriefModal from './components/ProjectBriefModal';
 
 // Extensions
 import CustomCursor from './components/CustomCursor';
-import KineticMarquee from './components/KineticMarquee';
 import PerformanceComparison from './components/PerformanceComparison';
-import ScrollIndicator from './components/ScrollIndicator';
-import EdgeStatusWidget from './components/EdgeStatusWidget';
 import { useSoundEffects } from './utils/useSoundEffects';
 
 export default function App() {
@@ -25,7 +22,6 @@ export default function App() {
     return localStorage.getItem('studio_theme') !== 'light';
   });
 
-  // Sound off by default for clean agency etiquette, users can enable anytime
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [isBriefOpen, setIsBriefOpen] = useState(false);
 
@@ -71,20 +67,13 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen transition-colors duration-500 font-sans selection:bg-purple-600/30 selection:text-purple-300 relative overflow-x-hidden ${
-        isDark ? 'bg-[#09090b] text-zinc-100' : 'bg-[#fafafa] text-zinc-900'
+      className={`min-h-screen transition-colors duration-500 font-sans selection:bg-zinc-500/30 selection:text-zinc-200 relative overflow-x-hidden ${
+        isDark ? 'bg-[#09090b] text-zinc-100' : 'bg-[#f5f5f7] text-zinc-900'
       }`}
     >
-      {/* 1. Custom Magnetic Trailing Cursor */}
       <CustomCursor isDark={isDark} />
+      {/* ScrollIndicator and StudioEdge successfully removed */}
 
-      {/* 2. Scroll-Linked Viewport Index */}
-      <ScrollIndicator isDark={isDark} />
-
-      {/* 3. Live Edge Latency & Clock Widget */}
-      <EdgeStatusWidget isDark={isDark} />
-
-      {/* 4. Navbar with Theme + Sound Controls */}
       <Navbar
         isDark={isDark}
         onToggleTheme={handleToggleTheme}
@@ -100,24 +89,17 @@ export default function App() {
       <main>
         <Hero isDark={isDark} onOpenBrief={handleOpenBrief} />
         
-        {/* Kinetic Infinite Marquee */}
-        <KineticMarquee isDark={isDark} />
-
-        <Services isDark={isDark} />
+        <AISolutions isDark={isDark} />
+        <Services isDark={isDark} onOpenBrief={handleOpenBrief} />
         <IntelligenceShowcase isDark={isDark} />
 
-        {/* Interactive Performance Benchmark Slider */}
         <PerformanceComparison isDark={isDark} />
-
-        <AISolutions isDark={isDark} />
         <About isDark={isDark} />
         <ContactBanner isDark={isDark} onOpenBrief={handleOpenBrief} />
       </main>
 
-      {/* Footer */}
       <Footer isDark={isDark} onOpenBrief={handleOpenBrief} />
 
-      {/* Non-Scrolling Project Brief Intake Modal */}
       <ProjectBriefModal
         isOpen={isBriefOpen}
         onClose={() => setIsBriefOpen(false)}

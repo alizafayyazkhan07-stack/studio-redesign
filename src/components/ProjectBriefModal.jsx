@@ -66,40 +66,6 @@ export default function ProjectBriefModal({ isOpen, onClose, isDark }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-
-    const formPayload = {
-      access_key: "a1313516-ced4-4a1b-ac8f-65609b0a0857",
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      service_scope: formData.projectTypes.join(', '),
-      budget: formData.budget,
-      timeline: formData.timeline,
-      message: formData.description,
-      reference_link: formData.referenceLink,
-    };
-
-    try {
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(formPayload),
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        setSubmitted(true);
-      } else {
-        alert("Submission failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Something went wrong!");
-
     setIsSubmitting(true);
     setErrorMessage('');
 
@@ -138,7 +104,6 @@ export default function ProjectBriefModal({ isOpen, onClose, isDark }) {
       setErrorMessage('Network error. Please check your connection and try again.');
     } finally {
       setIsSubmitting(false);
- dfb65fe847e0adbbeaaef7268745db0682711f9d
     }
   };
 
