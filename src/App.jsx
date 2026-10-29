@@ -1,73 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import Lenis from '@studio-freight/lenis';
-
-// Core Sections
+import React, { useState } from 'react';
+import IntroScreen from './components/IntroScreen';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import Services from './components/Services';
 import AISolutions from './components/AISolutions';
-import IntelligenceShowcase from './components/IntelligenceShowcase';
-import PerformanceComparison from './components/PerformanceComparison';
+import Services from './components/Services';
 import About from './components/About';
-import ContactBanner from './components/ContactBanner';
 import Footer from './components/Footer';
-import ProjectBriefModal from './components/ProjectBriefModal';
+import ProjectModal from './components/ProjectBriefModal';
 
 export default function App() {
+  const [showIntro, setShowIntro] = useState(true);
   const [isBriefOpen, setIsBriefOpen] = useState(false);
-
-  // Smooth Lenis inertial scrolling
-  useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: 'vertical',
-      gestureOrientation: 'vertical',
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 2,
-    });
-
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-    const rafId = requestAnimationFrame(raf);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-    };
-  }, []);
 
   const handleOpenBrief = () => {
     setIsBriefOpen(true);
   };
 
+  const handleCloseBrief = () => {
+    setIsBriefOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-[#f5f5f7] text-zinc-900 font-sans selection:bg-zinc-200 selection:text-zinc-900 relative overflow-x-hidden">
-      
-      {/* Navbar without arrow icon & custom cursor removed */}
+    <div className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-200">
+      {/* 5.5s Silent Intro Animation */}
+      {showIntro && <IntroScreen onFinish={() => setShowIntro(false)} />}
+
+      {/* Project Brief Modal */}
+      <ProjectModal isOpen={isBriefOpen} onClose={handleCloseBrief} />
+
+      {/* Navigation Header */}
       <Navbar onOpenBrief={handleOpenBrief} />
 
-      {/* Main Page Flow (Pure White / Light Grey Apple Aesthetic with Carousel) */}
       <main>
+        {/* 1. Hero Section */}
         <Hero onOpenBrief={handleOpenBrief} />
+
+        {/* 2. Deterministic AI Section (Before Services) */}
         <AISolutions onOpenBrief={handleOpenBrief} />
+
+        {/* 3. 9 Core Studio Services */}
         <Services onOpenBrief={handleOpenBrief} />
-        <IntelligenceShowcase />
-        <PerformanceComparison />
-        <About />
-        <ContactBanner onOpenBrief={handleOpenBrief} />
+
+        {/* 4. About Section */}
+        {typeof About !== 'undefined' && <About onOpenBrief={handleOpenBrief} />}
       </main>
 
-      <Footer onOpenBrief={handleOpenBrief} />
-
-      <ProjectBriefModal
-        isOpen={isBriefOpen}
-        onClose={() => setIsBriefOpen(false)}
-        isDark={false}
-      />
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

@@ -1,156 +1,279 @@
-import React, { useState } from 'react';
-import { X, CheckCircle, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Send, CheckCircle2 } from 'lucide-react';
 
-export default function ProjectBriefModal({ isOpen, onClose, isDark, onSuccessSound }) {
+export default function ProjectModal({ isOpen, onClose }) {
   const [submitted, setSubmitted] = useState(false);
+  
+  // Multi-select capability tags matching your screenshot
+  const [selectedCapabilities, setSelectedCapabilities] = useState([
+    'Flagship Web Architecture',
+    'Verified AI / RAG System'
+  ]);
+
+  // Budget bracket pill selection
+  const [selectedBudget, setSelectedBudget] = useState('$5k - $10k');
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    projectType: 'Web Development',
-    budget: '$5k - $15k',
-    message: ''
+    phone: '',
+    company: '',
+    timeline: '',
+    vision: ''
   });
+
+  const capabilityOptions = [
+    'Flagship Web Architecture',
+    'Verified AI / RAG System',
+    'Design System & Micro-Interactions',
+    'AI Agents & Operations Automation',
+    'High-Conversion E-Commerce Platform',
+    'Full-Stack Cloud & API Infrastructure'
+  ];
+
+  const budgetOptions = ['$5k - $10k', '$10k - $25k', '$25k+'];
+
+  // Lock background scrolling while modal is open
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
+  const toggleCapability = (cap) => {
+    if (selectedCapabilities.includes(cap)) {
+      setSelectedCapabilities(selectedCapabilities.filter(item => item !== cap));
+    } else {
+      setSelectedCapabilities([...selectedCapabilities, cap]);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (formData.vision.trim().length < 15) {
+      alert("Please enter a brief summary of what you want to build (minimum 15 characters).");
+      return;
+    }
+
     setSubmitted(true);
-    if (onSuccessSound) onSuccessSound();
+    setTimeout(() => {
+      setSubmitted(false);
+      onClose();
+    }, 2200);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-md">
-      <div className="relative w-full max-w-xl bg-white rounded-3xl border border-zinc-200 shadow-2xl p-6 sm:p-8 overflow-hidden text-zinc-900">
-        
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 overflow-hidden">
+      {/* Background Dimming Backdrop */}
+      <div 
+        onClick={onClose}
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+      />
 
-        {!submitted ? (
+      {/* Modal Container with Internal Scroll Only */}
+      <div className="relative w-full max-w-lg max-h-[90vh] bg-white rounded-[32px] sm:rounded-[36px] border border-zinc-200 shadow-2xl z-10 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        
+        {/* Header */}
+        <div className="p-6 sm:p-7 pb-4 border-b border-zinc-100 flex items-start justify-between bg-white shrink-0">
           <div>
-            <div className="mb-6">
-              <span className="text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded-full bg-zinc-100 border border-zinc-200 text-zinc-600 font-semibold inline-block mb-2">
-                Project Intake
-              </span>
-              <h2 className="text-2xl font-bold uppercase tracking-tight text-zinc-900">
-                Initiate Project Brief
-              </h2>
-              <p className="text-xs text-zinc-600 mt-1">
-                Submit your scope parameters and receive an architectural diagnosis within 24 hours.
+            <span className="text-[10px] font-mono tracking-widest text-zinc-400 font-bold uppercase">
+              COMMISSION BRIEF
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-zinc-950 tracking-tight uppercase leading-none mt-1">
+              START A PROJECT
+            </h2>
+            <p className="text-xs text-zinc-500 mt-1 font-normal">
+              Tell us about your product, timeline, or engineering goals.
+            </p>
+          </div>
+
+          <button
+            onClick={onClose}
+            type="button"
+            className="w-9 h-9 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-700 flex items-center justify-center transition-colors cursor-pointer shrink-0 ml-3"
+            aria-label="Close dialog"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Scrollable Form Content */}
+        <div className="p-6 sm:p-7 pt-4 overflow-y-auto overscroll-contain flex-1" style={{ scrollbarWidth: 'thin' }}>
+          {submitted ? (
+            <div className="py-16 flex flex-col items-center justify-center text-center">
+              <CheckCircle2 className="w-14 h-14 text-emerald-500 mb-4 animate-bounce" />
+              <h3 className="text-xl font-bold text-zinc-900 uppercase tracking-tight">Project Brief Submitted</h3>
+              <p className="text-xs text-zinc-500 mt-2 max-w-xs">
+                Your scope has been logged. Our studio leads will contact you within 24 business hours.
               </p>
             </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-600 mb-1 font-semibold">
-                    Your Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Tanzil Mungaye"
-                    className="w-full px-4 py-2.5 rounded-xl border border-zinc-300 bg-zinc-50 text-zinc-900 text-xs focus:outline-none focus:border-zinc-900 transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-600 mb-1 font-semibold">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="tanzil@studio.com"
-                    className="w-full px-4 py-2.5 rounded-xl border border-zinc-300 bg-zinc-50 text-zinc-900 text-xs focus:outline-none focus:border-zinc-900 transition-colors"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-600 mb-1 font-semibold">
-                    Primary Discipline
-                  </label>
-                  <select
-                    value={formData.projectType}
-                    onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-zinc-300 bg-zinc-50 text-zinc-900 text-xs focus:outline-none focus:border-zinc-900 transition-colors"
-                  >
-                    <option>Web Development & UI/UX</option>
-                    <option>AI & Machine Learning RAG</option>
-                    <option>E-Commerce Architecture</option>
-                    <option>Cloud Infrastructure & DevOps</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-600 mb-1 font-semibold">
-                    Estimated Budget
-                  </label>
-                  <select
-                    value={formData.budget}
-                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl border border-zinc-300 bg-zinc-50 text-zinc-900 text-xs focus:outline-none focus:border-zinc-900 transition-colors"
-                  >
-                    <option>$5k - $15k</option>
-                    <option>$15k - $30k</option>
-                    <option>$30k+</option>
-                  </select>
-                </div>
-              </div>
-
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-5">
+              
+              {/* Full Name */}
               <div>
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-zinc-600 mb-1 font-semibold">
-                  Project Scope & Requirements
+                <label className="block text-[11px] font-mono font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+                  Your Name *
                 </label>
-                <textarea
-                  rows={3}
+                <input
                   required
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Describe your architectural goals..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-zinc-300 bg-zinc-50 text-zinc-900 text-xs focus:outline-none focus:border-zinc-900 transition-colors resize-none"
+                  type="text"
+                  placeholder="e.g. Alex Rivera"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-3 rounded-2xl border border-zinc-200/90 bg-zinc-100/60 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900 focus:bg-white transition-all placeholder:text-zinc-400"
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 rounded-xl bg-zinc-900 text-white font-semibold text-xs uppercase tracking-wider hover:bg-zinc-800 transition-all shadow-lg flex items-center justify-center space-x-2 cursor-pointer"
-              >
-                <span>Submit Architectural Brief</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              {/* Work Email */}
+              <div>
+                <label className="block text-[11px] font-mono font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+                  Work Email *
+                </label>
+                <input
+                  required
+                  type="email"
+                  placeholder="alex@company.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-4 py-3 rounded-2xl border border-zinc-200/90 bg-zinc-100/60 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900 focus:bg-white transition-all placeholder:text-zinc-400"
+                />
+              </div>
+
+              {/* Phone / WhatsApp */}
+              <div>
+                <label className="block text-[11px] font-mono font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+                  Phone / WhatsApp *
+                </label>
+                <input
+                  required
+                  type="tel"
+                  placeholder="+91 (555) 000-0000"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-4 py-3 rounded-2xl border border-zinc-200/90 bg-zinc-100/60 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900 focus:bg-white transition-all placeholder:text-zinc-400"
+                />
+              </div>
+
+              {/* Company / Brand Name */}
+              <div>
+                <label className="block text-[11px] font-mono font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+                  Company / Brand Name *
+                </label>
+                <input
+                  required
+                  type="text"
+                  placeholder="e.g. Acme Labs or studio.domain.com"
+                  value={formData.company}
+                  onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                  className="w-full px-4 py-3 rounded-2xl border border-zinc-200/90 bg-zinc-100/60 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900 focus:bg-white transition-all placeholder:text-zinc-400"
+                />
+              </div>
+
+              {/* Capability Selectable Pill Tiles */}
+              <div>
+                <label className="block text-[11px] font-mono font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                  Key Disciplines &amp; Architecture
+                </label>
+                <div className="flex flex-col gap-2">
+                  {capabilityOptions.map((cap) => {
+                    const isSelected = selectedCapabilities.includes(cap);
+                    return (
+                      <button
+                        key={cap}
+                        type="button"
+                        onClick={() => toggleCapability(cap)}
+                        className={`w-full text-left px-4 py-3 rounded-2xl text-xs sm:text-sm font-semibold transition-all cursor-pointer border ${
+                          isSelected
+                            ? 'bg-zinc-100 border-zinc-300 text-zinc-950 font-bold'
+                            : 'bg-zinc-50/70 border-zinc-200/70 text-zinc-600 hover:bg-zinc-100/50'
+                        }`}
+                      >
+                        {cap}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Estimated Budget Bracket */}
+              <div>
+                <label className="block text-[11px] font-mono font-bold text-zinc-500 uppercase tracking-wider mb-2">
+                  Estimated Budget Bracket *
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {budgetOptions.map((b) => {
+                    const isSelected = selectedBudget === b;
+                    return (
+                      <button
+                        key={b}
+                        type="button"
+                        onClick={() => setSelectedBudget(b)}
+                        className={`py-3 px-2 rounded-2xl text-xs sm:text-sm font-bold tracking-tight transition-all cursor-pointer text-center border ${
+                          isSelected
+                            ? 'bg-zinc-950 text-white border-zinc-950 shadow-sm'
+                            : 'bg-zinc-100/70 text-zinc-800 border-zinc-200/80 hover:bg-zinc-100'
+                        }`}
+                      >
+                        {b}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Desired Launch Timeline */}
+              <div>
+                <label className="block text-[11px] font-mono font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+                  Desired Launch Timeline *
+                </label>
+                <input
+                  required
+                  type="text"
+                  placeholder="e.g. 4-6 weeks, by end of Q2, ASAP"
+                  value={formData.timeline}
+                  onChange={(e) => setFormData({ ...formData, timeline: e.target.value })}
+                  className="w-full px-4 py-3 rounded-2xl border border-zinc-200/90 bg-zinc-100/60 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900 focus:bg-white transition-all placeholder:text-zinc-400"
+                />
+              </div>
+
+              {/* What Do You Want To Build? (Vision & Objectives) */}
+              <div>
+                <label className="block text-[11px] font-mono font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+                  What Do You Want To Build? (Vision &amp; Objectives) *
+                </label>
+                <textarea
+                  required
+                  rows="4"
+                  placeholder="Describe your product concept, target audience, and core problem to solve..."
+                  value={formData.vision}
+                  onChange={(e) => setFormData({ ...formData, vision: e.target.value })}
+                  className="w-full px-4 py-3 rounded-2xl border border-zinc-200/90 bg-zinc-100/60 text-sm text-zinc-900 focus:outline-none focus:border-zinc-900 focus:bg-white transition-all placeholder:text-zinc-400 resize-none"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full py-4 rounded-2xl bg-zinc-950 hover:bg-black text-white text-xs sm:text-sm font-bold tracking-wide flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-all cursor-pointer"
+                >
+                  <span>Submit Project Brief</span>
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
             </form>
-          </div>
-        ) : (
-          <div className="py-12 text-center space-y-4">
-            <div className="w-16 h-16 bg-zinc-100 border border-zinc-300 rounded-full flex items-center justify-center mx-auto text-zinc-900">
-              <CheckCircle className="w-8 h-8" />
-            </div>
-            <h3 className="text-xl font-bold uppercase tracking-tight text-zinc-900">
-              Brief Successfully Submitted
-            </h3>
-            <p className="text-xs text-zinc-600 max-w-sm mx-auto">
-              Thank you! Anas Shariff's architectural team will analyze your parameters and respond within 24 hours.
-            </p>
-            <button
-              type="button"
-              onClick={() => { setSubmitted(false); onClose(); }}
-              className="px-6 py-2.5 rounded-xl bg-zinc-900 text-white text-xs font-semibold hover:bg-zinc-800 transition-all cursor-pointer"
-            >
-              Close Window
-            </button>
-          </div>
-        )}
+          )}
+        </div>
+
       </div>
     </div>
   );

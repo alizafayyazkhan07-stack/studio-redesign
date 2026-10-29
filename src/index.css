@@ -1,3 +1,81 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+  background-color: #f5f5f7;
+  color: #1d1d1f;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Minimal clean scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 9999px;
+}
+
+::selection {
+  background: #1d1d1f;
+  color: #ffffff;
+}
+/* Smooth Pulsing Logo Dot Animation */
+@keyframes radarPulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+}
+
+.animate-radar {
+  animation: radarPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Background Ambient Waves Animation */
+@keyframes waveMove {
+  0% {
+    transform: translateX(-40px) skewY(-12deg);
+  }
+  100% {
+    transform: translateX(40px) skewY(-12deg);
+  }
+}
+
+.animate-wave {
+  animation: waveMove 5s ease-in-out infinite alternate;
+}
+/* GPU Acceleration & Performance Optimizations */
+html {
+  scroll-behavior: smooth;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Force hardware compositing on fixed overlays */
+header, #services, .fixed {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Eliminate layout repaint lag on carousel cards */
+.snap-mandatory {
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-left: 1rem;
+}
